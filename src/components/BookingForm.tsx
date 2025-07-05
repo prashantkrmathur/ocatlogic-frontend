@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-
 import axios from 'axios';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { toast } from 'sonner';
 
 interface VehicleCategory {
   id: number;
@@ -30,8 +31,7 @@ export default function BookingForm() {
   const [vehicleId, setVehicleId] = useState<number | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  // const { toast } = useToast(); // Removed unused hook
- 
+
   useEffect(() => {
     if (wheelCount) {
       axios.get(`${API}/vehicles/categories?wheelCount=${wheelCount}`).then(res => {
@@ -60,7 +60,12 @@ export default function BookingForm() {
         startDate,
         endDate,
       });
-      alert('Booking Successful: ' + res.data.message); // Replaced with alert for feedback
+
+      toast.success('Booking Successful', {
+        description: res.data?.message || 'Vehicle booked successfully.',
+      });
+
+      // Reset form
       setStep(0);
       setFirstName('');
       setLastName('');
@@ -70,7 +75,9 @@ export default function BookingForm() {
       setStartDate('');
       setEndDate('');
     } catch (err: any) {
-      alert('Booking Failed: ' + (err.response?.data?.message || 'Error')); // Replaced with alert for feedback
+      toast.error('Booking Failed', {
+        description: err.response?.data?.message || 'Something went wrong',
+      });
     }
   };
 
@@ -89,17 +96,14 @@ export default function BookingForm() {
       {step === 1 && (
         <div className="space-y-4">
           <RadioGroup value={wheelCount?.toString()} onValueChange={(v) => setWheelCount(Number(v))}>
-            <label className="flex items-center space-x-2">
-            <label className="flex items-center space-x-2">
-              <RadioGroupItem value="4" />
-              <span>4 Wheels</span>
-            </label>
-              <span>2 Wheels</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <RadioGroupItem value="4" />
-              <span>4 Wheels</span>
-            </label>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="2" id="wheel2" />
+              <Label htmlFor="wheel2">2 Wheels</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="4" id="wheel4" />
+              <Label htmlFor="wheel4">4 Wheels</Label>
+            </div>
           </RadioGroup>
           <div className="flex justify-between">
             <Button variant="outline" onClick={prevStep}>Back</Button>
@@ -112,10 +116,10 @@ export default function BookingForm() {
         <div className="space-y-4">
           <RadioGroup value={categoryId?.toString()} onValueChange={(v) => setCategoryId(Number(v))}>
             {categories.map((cat) => (
-              <label className="flex items-center space-x-2">
-                <RadioGroupItem key={cat.id} value={cat.id.toString()} />
-                <span>{cat.name}</span>
-              </label>
+              <div className="flex items-center space-x-2" key={cat.id}>
+                <RadioGroupItem value={cat.id.toString()} id={`cat-${cat.id}`} />
+                <Label htmlFor={`cat-${cat.id}`}>{cat.name}</Label>
+              </div>
             ))}
           </RadioGroup>
           <div className="flex justify-between">
@@ -129,10 +133,10 @@ export default function BookingForm() {
         <div className="space-y-4">
           <RadioGroup value={vehicleId?.toString()} onValueChange={(v) => setVehicleId(Number(v))}>
             {models.map((model) => (
-            <label className="flex items-center space-x-2">
-                <RadioGroupItem key={model.id} value={model.id.toString()} />
-                <span>{model.modelName}</span>
-              </label>
+              <div className="flex items-center space-x-2" key={model.id}>
+                <RadioGroupItem value={model.id.toString()} id={`vehicle-${model.id}`} />
+                <Label htmlFor={`vehicle-${model.id}`}>{model.modelName}</Label>
+              </div>
             ))}
           </RadioGroup>
           <div className="flex justify-between">
