@@ -18,7 +18,7 @@ interface Vehicle {
   category: VehicleCategory;
 }
 
-const API = 'http://localhost:3000/api';
+const API = 'https://octalogic-backend-production.up.railway.app/api';
 
 export default function BookingForm() {
   const [step, setStep] = useState(0);
